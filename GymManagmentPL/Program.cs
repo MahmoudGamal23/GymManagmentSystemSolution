@@ -1,4 +1,7 @@
+using GymManagementDAL.Repositories.Classes;
+using GymManagementDAL.Repositories.Interfaces;
 using GymManagEmentDAL.Data.Contexts;
+using GymManagEmentDAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymManagmentPL
@@ -17,6 +20,9 @@ namespace GymManagmentPL
                // options.UseSqlServer(builder.Configuration.GetSection("ConnectionString")["DefaultConnection"]);
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+            //builder.Services.AddScoped(typeof(IGenericRepository<>),typeof (GenericRepository<>));
+            //builder.Services.AddScoped<IPlanRepository, PlanRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 
