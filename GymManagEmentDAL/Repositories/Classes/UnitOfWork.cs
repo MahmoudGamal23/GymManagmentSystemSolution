@@ -9,16 +9,19 @@ using System.Threading.Tasks;
 
 namespace GymManagementDAL.Repositories.Classes
 {
-    public class UnitOfWork : IUnitOfWork 
+    public class UnitOfWork : IUnitOfWork
     {
-        private readonly Dictionary<Type, object> _repositories = new();
         private readonly GymDbContext _dbContext;
-        public UnitOfWork(GymDbContext dbContext)
+
+        public UnitOfWork(GymDbContext dbContext, ISessionRepository sessionRepository)
         {
             _dbContext = dbContext;
+            SessionRepository = sessionRepository;
         }
+        private readonly Dictionary<Type, object> _repositories = new();
 
-      
+        public ISessionRepository SessionRepository { get; }
+
         public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity, new()
         {
             var EntityType = typeof(TEntity);
@@ -27,13 +30,11 @@ namespace GymManagementDAL.Repositories.Classes
             var NewRepo = new GenericRepository<TEntity>(_dbContext);
             _repositories[EntityType] = NewRepo;
             return NewRepo;
-
-            // return new GenericRepository<TEntity>(_dbContext);
         }
-
         public int SaveChanges()
         {
             return _dbContext.SaveChanges();
         }
     }
 }
+

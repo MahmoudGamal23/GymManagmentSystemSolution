@@ -16,7 +16,7 @@ namespace GymManagEmentDAL.Entities
         #region RelationShips
         #region Category - Session
         public int CategoryId { get; set; }
-        public Category SessionCategory { get; set; } = null!;
+        public Category Category { get; set; } = null!;
         #endregion
 
         #region Trainer - Session
