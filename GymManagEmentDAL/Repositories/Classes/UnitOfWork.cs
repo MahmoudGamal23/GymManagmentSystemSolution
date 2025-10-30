@@ -31,6 +31,7 @@ namespace GymManagementDAL.Repositories.Classes
             _repositories[EntityType] = NewRepo;
             return NewRepo;
         }
+
         public int SaveChanges()
         {
             return _dbContext.SaveChanges();

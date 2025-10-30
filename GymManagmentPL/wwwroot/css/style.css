@@ -1,8 +1,6 @@
-﻿
-    ﻿ /* ^ global style */
-    :root
+﻿/* ^ global style */
 
-{
+:root {
     --primary-color: #070093;
     --main-duration: 300ms;
     --black-alternative: #242424;
@@ -590,4 +588,3 @@ footer .footer-content .location p {
         border-color: var(--primary-color);
         -webkit-text-fill-color: #fff; /* ensures text stays visible on hover */
     }
-

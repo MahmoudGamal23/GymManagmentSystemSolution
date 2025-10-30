@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.Services.Classes
 {
-    internal class SessionService : ISessionService
+    public class SessionService : ISessionService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        public readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public SessionService(IUnitOfWork unitOfWork, IMapper mapper)
@@ -23,153 +23,187 @@ namespace GymManagementBLL.Services.Classes
             _mapper = mapper;
         }
 
-
-        public IEnumerable<SessionViewModel> GetAllSessions()
-        {
-            var Sessions = _unitOfWork.SessionRepository.GetAllSessionsWithTrainerAndCategories();
-            if (Sessions is null || !Sessions.Any()) return [];
-
-            #region Manual Mapping
-            //return Sessions.Select(X => new SessionViewModel()
-            //{
-            //    Id = X.Id,
-            //    Capacity = X.Capacity,
-            //    Description = X.Description,
-            //    StartDate = X.StartDate,
-            //    EndDate = X.EndDate,
-            //    TrainerName = X.SessionTrainer.Name,
-            //    CategoryName = X.category.CategoryName,
-            //    AvailableSlots = X.Capacity - _unitOfWork.SessionRepository.GetcountOfBookedSlots(X.Id)
-            //});
-            #endregion
-
-            #region Automatic Mapping
-
-            var MappedSessions = _mapper.Map<IEnumerable<Session>, IEnumerable<SessionViewModel>>(Sessions);
-            return MappedSessions;
-            #endregion
-
-        }
-
-        public SessionViewModel? GetSessionById(int id)
-        {
-            var Session = _unitOfWork.SessionRepository.GetSessionByIdWithTrainerAndCategories(id);
-            if (Session is null) return null;
-
-            var MappedSession = _mapper.Map<Session, SessionViewModel>(Session);
-            return MappedSession;
-
-        }
-        public bool CreateSession(CreateSessionViewModel createSession)
+        public bool CreateSession(CreateSessionViewModel ceateSession)
         {
             try
             {
-                if (!IsTrainerExists(createSession.TrainerId)) return false;
-                if (!IsCategoryExists(createSession.CategoryId)) return false;
-                if (!IsValidDateRange(createSession.StartDate, createSession.EndDate)) return false;
+                if (!IsTrainerExists(ceateSession.TrainerId)) return false;
+                if (!IsCategoryExists(ceateSession.CategoryId)) return false;
+                if (!IsValidDateRange(ceateSession.StartDate, ceateSession.EndDate)) return false;
+                var session = _mapper.Map<CreateSessionViewModel, Session>(ceateSession);
+                _unitOfWork.SessionRepository.Add(session);
 
-                var MappedSession = _mapper.Map<CreateSessionViewModel, Session>(createSession);
-
-                _unitOfWork.SessionRepository.Add(MappedSession);
                 return _unitOfWork.SaveChanges() > 0;
+
             }
             catch
             {
                 return false;
             }
+
+
+
         }
 
-        public UpdateSessionViewModel? GetSessionToUpdate(int sessionId)
+        public IEnumerable<SessionViewModel> GetAllSessions()
         {
-            var Session = _unitOfWork.SessionRepository.GetById(sessionId);
-            if (!IsSessionAvailableForUpdateing(Session!)) return null;
-            return _mapper.Map<UpdateSessionViewModel>(Session);
+            var sessions = _unitOfWork.SessionRepository.GetAllSessionsWithTrainerAndCategories();
+            if (sessions is null || !sessions.Any()) return [];
+
+            #region Manual mapp
+
+            //return sessions.Select(x => new SessionViewModel()
+            //{
+            //    Id = x.Id,
+            //    Capacity = x.Capacity,
+            //    EndDate = x.EndDate,
+            //    StartDate = x.StartDate,
+            //    Description = x.Description,
+            //    TrainerName = x.SessionsTrainer.Name,
+            //    CategoryName = x.Category.CategoryName,
+            //    AvailableSlots = x.Capacity - _unitOfWork.sessionRepository.GetCountOfBookSlots(x.Id)
+
+            //});
+            #endregion
+
+            #region Auta Mapping
+            var MappedSessions = _mapper.Map<IEnumerable<Session>, IEnumerable<SessionViewModel>>(sessions);
+            return MappedSessions;
+            #endregion
+        }
+
+        public SessionViewModel? GetSessionById(int sessionId)
+        {
+            var session = _unitOfWork.SessionRepository.GetSessionByIdWithTrainerAndCategories(sessionId);
+            if (session is null) return null;
+            #region Manual mapp
+            //return new SessionViewModel()
+            //{
+            //    Id = session.Id,
+            //    Capacity = session.Capacity,
+            //    EndDate = session.EndDate,
+            //    StartDate = session.StartDate,
+            //    Description = session.Description,
+            //    TrainerName = session.SessionsTrainer.Name,
+            //    CategoryName = session.Category.CategoryName,
+            //    AvailableSlots = session.Capacity - _unitOfWork.sessionRepository.GetCountOfBookSlots(session.Id)
+            //};
+            #endregion
+            #region Auta Mapping
+
+            return _mapper.Map<Session, SessionViewModel>(session);
+
+            #endregion
+
+        }
+
+        public UpdateSessionViewModel? GetSessionForUpdate(int sessionId)
+        {
+            var session = _unitOfWork.SessionRepository.GetById(sessionId);
+            if (!IsSessionAvailableForUpdateing(session!)) return null;
+            return _mapper.Map<UpdateSessionViewModel>(session!);
+
+
         }
 
         public bool UpdateSession(UpdateSessionViewModel updateSession, int sessionId)
         {
             try
             {
-                var Session = _unitOfWork.SessionRepository.GetById(sessionId);
-                if (!IsSessionAvailableForUpdateing(Session!)) return false;
+                var session = _unitOfWork.SessionRepository.GetById(sessionId);
+                if (!IsSessionAvailableForUpdateing(session!)) return false;
                 if (!IsTrainerExists(updateSession.TrainerId)) return false;
                 if (!IsValidDateRange(updateSession.StartDate, updateSession.EndDate)) return false;
-
-
-                _mapper.Map(updateSession, Session);
-                Session!.UpdatedAt = DateTime.Now;
+                _mapper.Map(updateSession, session);
+                session!.UpdatedAt = DateTime.Now;
+                _unitOfWork.SessionRepository.Update(session!);
                 return _unitOfWork.SaveChanges() > 0;
             }
             catch
             {
                 return false;
             }
-
         }
 
         public bool RemoveSession(int sessionId)
         {
             try
             {
-                var Session = _unitOfWork.SessionRepository.GetById(sessionId);
-
-                if (!IsSessionAvailableForRemoving(Session!)) return false;
-
-                _unitOfWork.SessionRepository.Delete(Session!);
+                var session = _unitOfWork.SessionRepository.GetById(sessionId);
+                if (!IsSessionAvailableForRemoving(session!)) return false;
+                _unitOfWork.SessionRepository.Delete(session!);
                 return _unitOfWork.SaveChanges() > 0;
             }
             catch
             {
                 return false;
             }
+
+
         }
+        public IEnumerable<TrainerSelectViewModel> GetAllTrainersForDropDown()
+        {
+            var trainers = _unitOfWork.GetRepository<Trainer>().GetAll();
+            return _mapper.Map<IEnumerable<TrainerSelectViewModel>>(trainers);
+        }
+
+        public IEnumerable<CategorySelectViewModel> GetAllCategoryForDropDown()
+        {
+            var categories = _unitOfWork.GetRepository<Category>().GetAll();
+            return _mapper.Map<IEnumerable<CategorySelectViewModel>>(categories);
+        }
+
 
         #region Helpers
-        private bool IsTrainerExists(int TrainerId)
+        public bool IsTrainerExists(int trainerId)
         {
-            return _unitOfWork.GetRepository<Trainer>().GetById(TrainerId) is not null;
+            return _unitOfWork.GetRepository<Trainer>().GetById(trainerId) is not null;
         }
-        private bool IsCategoryExists(int CategoryId)
+        public bool IsCategoryExists(int categoryId)
         {
-            return _unitOfWork.GetRepository<Category>().GetById(CategoryId) is not null;
+            return _unitOfWork.GetRepository<Category>().GetById(categoryId) is not null;
         }
-        private bool IsValidDateRange(DateTime StartDate, DateTime EndDate)
+        public bool IsValidDateRange(DateTime startDate, DateTime endDate)
         {
-            return StartDate < EndDate && StartDate > DateTime.Now;
+            return startDate < endDate && startDate > DateTime.Now;
         }
 
-        private bool IsSessionAvailableForUpdateing(Session session)
+
+        public bool IsSessionAvailableForUpdateing(Session session)
         {
-            if (session == null) return false;
+            if (session is null) return false;
 
             if (session.EndDate < DateTime.Now) return false;
 
             if (session.StartDate <= DateTime.Now) return false;
 
-            var HasActiveBooking = _unitOfWork.SessionRepository.GetcountOfBookedSlots(session.Id) > 0;
+            var HasActiveBookings = _unitOfWork.SessionRepository.GetcountOfBookedSlots(session.Id) > 0;
 
-            if (HasActiveBooking) return true;
-            return false;
+            if (HasActiveBookings) return false;
+
+            return true;
+
+
         }
-        private bool IsSessionAvailableForRemoving(Session session)
+        public bool IsSessionAvailableForRemoving(Session session)
         {
-            if (session == null) return false;
+            if (session is null) return false;
 
             if (session.StartDate > DateTime.Now) return false;
 
             if (session.StartDate <= DateTime.Now && session.EndDate > DateTime.Now) return false;
 
-            var HasActiveBooking = _unitOfWork.SessionRepository.GetcountOfBookedSlots(session.Id) > 0;
+            var HasActiveBookings = _unitOfWork.SessionRepository.GetcountOfBookedSlots(session.Id) > 0;
 
-            if (HasActiveBooking) return true;
-            return false;
+            if (HasActiveBookings) return false;
+
+            return true;
+
+
         }
 
 
-
         #endregion
-
-
     }
 }
 

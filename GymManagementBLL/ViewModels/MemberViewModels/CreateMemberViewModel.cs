@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.ViewModels.MemberViewModels
 {
-    internal class CreateMemberViewModel
+    public class CreateMemberViewModel
     {
         [Required(ErrorMessage ="Name Is Required")]
         [StringLength(50,MinimumLength =2 , ErrorMessage ="Name Must be Between 2 And 50 Char")]
@@ -48,7 +48,7 @@ namespace GymManagementBLL.ViewModels.MemberViewModels
         public string City { get; set; } = null!;
 
         [Required(ErrorMessage = "Health Record Is Required")]
-        public HealthRecordViewModel HealthRecordViewModel { get; set; } = null!;
+        public HealthRecordViewModel HealthRecordViewModel { get; set; } = new HealthRecordViewModel();
 
     }
 }

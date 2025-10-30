@@ -8,14 +8,17 @@ using System.Threading.Tasks;
 
 namespace GymManagementBLL.Services.Interfaces
 {
-    internal interface ISessionService
+    public interface ISessionService
     {
         IEnumerable<SessionViewModel> GetAllSessions();
-        SessionViewModel? GetSessionById(int id);
-        bool CreateSession(CreateSessionViewModel createSession);
-        UpdateSessionViewModel? GetSessionToUpdate(int sessionId);
+
+        SessionViewModel? GetSessionById(int sessionId);
+        bool CreateSession(CreateSessionViewModel ceateSession);
+        UpdateSessionViewModel? GetSessionForUpdate(int sessionId);
         bool UpdateSession(UpdateSessionViewModel updateSession, int sessionId);
         bool RemoveSession(int sessionId);
 
+        IEnumerable<TrainerSelectViewModel> GetAllTrainersForDropDown();
+        IEnumerable<CategorySelectViewModel> GetAllCategoryForDropDown();
     }
 }

@@ -51,7 +51,7 @@ namespace GymManagementDAL.Data.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<string>("BloodTybe")
+                    b.Property<string>("BloodType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -417,7 +417,7 @@ namespace GymManagementDAL.Data.Migrations
 
             modelBuilder.Entity("GymManagEmentDAL.Entities.Session", b =>
                 {
-                    b.HasOne("GymManagEmentDAL.Entities.Category", "SessionCategory")
+                    b.HasOne("GymManagEmentDAL.Entities.Category", "Category")
                         .WithMany("Sessions")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -429,7 +429,7 @@ namespace GymManagementDAL.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SessionCategory");
+                    b.Navigation("Category");
 
                     b.Navigation("SessionTrainer");
                 });
