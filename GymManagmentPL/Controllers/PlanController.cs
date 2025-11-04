@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
     namespace GymManagementPL.Controllers
     {
-      
-        public class PlanController : Controller
+    [Authorize]
+    public class PlanController : Controller
         {
 
             public IPlanService _planService { get; }

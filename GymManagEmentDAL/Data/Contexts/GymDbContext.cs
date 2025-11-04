@@ -1,4 +1,6 @@
-﻿using GymManagEmentDAL.Entities;
+﻿using GymManagementDAL.Entities.Enums;
+using GymManagEmentDAL.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace GymManagEmentDAL.Data.Contexts
 {
-    public class GymDbContext : DbContext
+    public class GymDbContext : IdentityDbContext<ApplicationUser>
     {
         public GymDbContext(DbContextOptions<GymDbContext>options):base(options)
         {
@@ -22,7 +24,18 @@ namespace GymManagEmentDAL.Data.Contexts
         //}
         protected override void OnModelCreating(ModelBuilder modelbuilder)
         {
+            base.OnModelCreating(modelbuilder);
             modelbuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelbuilder.Entity<ApplicationUser>(Eb =>
+            {
+                Eb.Property(X => X.FirstName)
+                  .HasColumnType("varchar")
+                  .HasMaxLength(50);
+
+                Eb.Property(X => X.LastName)
+                  .HasColumnType("varchar")
+                  .HasMaxLength(50);
+            });
 
         }
         #region Db Sets

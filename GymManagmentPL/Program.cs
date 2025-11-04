@@ -1,11 +1,14 @@
 using GymManagementBLL;
+using GymManagementBLL.Services.AttachmentService;
 using GymManagementBLL.Services.Classes;
 using GymManagementBLL.Services.Interfaces;
 using GymManagementDAL.Data.DataSeed;
+using GymManagementDAL.Entities.Enums;
 using GymManagementDAL.Repositories.Classes;
 using GymManagementDAL.Repositories.Interfaces;
 using GymManagEmentDAL.Data.Contexts;
 using GymManagEmentDAL.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,17 +38,33 @@ namespace GymManagmentPL
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IPlanService, PlanService>();
             builder.Services.AddScoped<ISessionService, SessionService>();
-
+            builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(Config =>
+            {
+                
+                Config.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<GymDbContext>();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+            });
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            //builder.Services.AddIdentityCore<ApplicationUser>()
+            //    .AddEntityFrameworkStores<GymDbContext>();
             var app = builder.Build();
 
             #region Seed Data - Migrate Database
             using var Scoped = app.Services.CreateScope();
             var dbContext = Scoped.ServiceProvider.GetRequiredService<GymDbContext>();
+            var roleManager = Scoped.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = Scoped.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             var PendingMigrations = dbContext.Database.GetPendingMigrations();
             if (PendingMigrations?.Any() ?? false)
                 dbContext.Database.Migrate();
 
             GymDbContextDataSeeding.SeedData(dbContext);
+            IdentityDbContextSeeding.SeedData(roleManager, userManager);
 
 
             //GymDbContextDataSeeding.SeedData(app.Services.CreateScope().ServiceProvider.GetRequiredService<GymDbContext>());
@@ -58,10 +77,9 @@ namespace GymManagmentPL
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
@@ -73,7 +91,7 @@ namespace GymManagmentPL
             //    );
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                pattern: "{controller=Account}/{action=Login}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

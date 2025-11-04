@@ -8,7 +8,7 @@ namespace GymManagEmentDAL.Entities
 {
     public class Member : GymUser
     {
-        public string? Pohto { get; set; }
+        public string Photo { get; set; } = null!;
 
         #region RelationShips
         #region Member - HealthRecord

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GymManagementPL.Controllers
 {
-
+    [Authorize]
     public class SessionController : Controller
     {
         public ISessionService _sessionService { get; }
